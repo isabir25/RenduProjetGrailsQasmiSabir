@@ -1,0 +1,5 @@
+compte admin
+	login : admin
+	password : admin
+
+Pour un utilisateur simple ==> création d'un compte puis accès

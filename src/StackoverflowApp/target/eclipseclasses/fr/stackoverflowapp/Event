@@ -1,0 +1,73 @@
+package fr.stackoverflowapp
+
+class Event {
+
+	int		point
+	String 	tag
+	Date	date
+	
+	static hasOne    = [question : Question]
+	static belongsTo = [reputation: reputation]
+	
+	enum EVENT_TYPE {
+		QUESTION_IS_UPVOTED = +5, 
+		QUESTION_IS_DOWNVOTED = -2, 
+		ANSWER_IS_DOWNVOTED = -2, 
+		ANSWER_IS_UPVOTED = +10, 
+		ANSWER_IS_ACCEPTED = +15,
+		ACCEPT_ANSWER = +2 
+	}
+	
+	enum EVENT_TAG {
+		QUESTION_IS_UPVOTED = "upvote", 
+		QUESTION_IS_DOWNVOTED = "downvote", 
+		ANSWER_IS_DOWNVOTED = "downvote", 
+		ANSWER_IS_UPVOTED = "upvote", 
+		ANSWER_IS_ACCEPTED = "accept",
+		ACCEPT_ANSWER = "accept" 
+		
+		}
+	
+	Event(EVENT_TYPE event_type, Question in_question) {
+		Date	 = new Date()
+		question = in_event
+		switch (event_type) {
+        case EVENT.QUESTION_IS_UPVOTED:
+            point	= event_type
+            tag		= EVENT_TAG.QUESTION_IS_UPVOTED
+            break
+		case EVENT.QUESTION_IS_DOWNVOTED:
+            point	= event_type
+            tag		= EVENT_TAG.QUESTION_IS_DOWNVOTED
+            break
+		case EVENT.ANSWER_IS_DOWNVOTED:
+            point	= event_type
+            tag		= EVENT_TAG.ANSWER_IS_DOWNVOTED
+            break
+        case EVENT.ANSWER_IS_UPVOTED:
+            point	= event_type
+            tag		= EVENT_TAG.ANSWER_IS_UPVOTED
+            break
+        case EVENT.ANSWER_IS_ACCEPTED:
+            point	= event_type
+            tag		= EVENT_TAG.ANSWER_IS_ACCEPTED
+            break
+        case EVENT.ACCEPT_ANSWER:
+            point	= event_type
+            tag		= EVENT_TAG.ACCEPT_ANSWER
+            break
+    
+		}
+	
+	}
+	
+	def afterInsert() {
+		Event.withNewSession {
+			reputation.value += point
+			reputation.save(fflush:true)
+		}
+	}
+
+	
+}
+

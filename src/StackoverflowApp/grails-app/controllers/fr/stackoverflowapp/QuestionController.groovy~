@@ -1,0 +1,112 @@
+package fr.stackoverflowapp
+
+import org.springframework.security.access.annotation.Secured
+
+@Secured('permitAll')
+class QuestionController {
+	
+	//def tmpQuestion
+
+	QuestionService questionService
+    
+	def index() {
+		
+		redirect(action: "list")
+	}
+	
+	def list (){
+		
+	}
+	
+	def createQuestion(){
+
+		[tags: Tags.list(params)]
+	}
+	
+	def save(){
+		
+		/*
+		def question = new Question(params)
+		def tagList = []
+
+		//remplire tag list
+		params.tags.each{ cp -> 
+			
+			tagList << Tags.get(cp)
+		}
+		question.tags = tagList
+		question.askDate = new Date()
+				
+		//get profile from session
+		Profile userProfile = Profile.get(session.identifier)
+
+		question.profile = userProfile
+		
+		tmpQuestion = question
+		*/
+		question = questionService.save(params, session)
+		redirect(action: "show",  params: [identifier: question.id])
+	}
+	
+	def show(){
+		
+		/*def question = Question.get(params.identifier)
+		if(question != null){
+			[myQuestion: question]
+			//call service to get edit profile
+			[editedProfile: Profile.get(session.identifier)]
+		}
+		else{
+			redirect(action: "createQuestion")
+		}*/
+		
+		[myQuestion: tmpQuestion]
+		//call service to get edit profile
+		[editedProfile: Profile.get(session.identifier)]
+	}
+	
+	def edit(){
+		
+		question = Question.get(params.identifier)
+		if(question != null)
+			[question: question]
+	}
+	
+	def update(){
+		
+		question = Question.get(params.identifier)
+				
+		if (!question) {
+			flash.message = message(code: 'default.not.found.message', args: [message(code: 'askQuestion.label', default: 'ask Question')], params.id)
+			redirect(action: "show")
+			return
+		}
+		
+		def tagList = []
+		//remplire tag list
+		params.tags.each{ cp ->
+			
+			tagList << Tags.get(cp)
+		}
+		question.tags = tagList
+		question.editDate = new Date()
+		question.title = params.title
+		question.body = params.body
+				
+		if (!userProfile.addToEditedQuestions(question).save(flush: true)) {
+			render(view: "show", model: [tag: tag])
+			return
+		}
+		flash.message = message(code: 'default.updated.message', args: [message(code: 'tag.label', default: 'Tage'), tag.name])
+		
+		redirect(action: "show")
+	}
+	
+	def listAskedQuestions(){
+		
+		Profile userProfile = session.data as Profile
+		print(userProfile.askedQuestions.size() + " askedQuestions size ")//?????????
+		[listAskedQuestions: userProfile.askedQuestions]
+	}
+	
+}
